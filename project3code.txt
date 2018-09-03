@@ -1,0 +1,52 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df=pd.read_csv('noshowappointments-kagglev2-may-2016.csv')
+#To get some ideas about what the columns are in the dataframe and what the values look like
+df.info()
+df.head()
+#First question(neighbourhood)
+#data wrangling 
+df.rename(columns={'No-show': 'Show_up'}, inplace=True)
+df.replace({'Show_up': {'No': True, 'Yes': False}}, inplace=True)
+df.groupby('Neighbourhood').sum()['Show_up']
+#find which neighbourhood has the most show up
+df.groupby('Neighbourhood')['Show_up'].sum().idxmax()
+#make scatter plot
+df2=df.groupby('Neighbourhood',as_index=False)['Show_up'].sum()
+plt.scatter(df2.index, df2['Show_up'])
+plt.xlabel('Neighbourhood(index is used)')
+plt.ylabel('Show up(times)')
+plt.title('Showup in various neighbourhoods')
+plt.show()
+#make bar chart
+ax=df2['Show_up'].plot(kind='bar', title ="Showup in various neighbourhoods", figsize=(15, 10), fontsize=14)
+ax.set_xlabel("Neighbourhood(index is used)", fontsize=12)
+ax.set_ylabel("Show up(times)", fontsize=12)
+plt.show()
+#line chart
+ax = sns.lineplot(x=df2.index, y="Show_up", data=df2)
+#Second question(message received or not)
+#make plots of message and show up
+df4=df.groupby('PatientId',as_index=False)['SMS_received','Show_up'].sum()
+#correlation between message and showup
+np.corrcoef(df4['SMS_received'],df4['Show_up'])
+#line chart
+plt.figure(figsize=(20,10))
+plt.plot(df4.index, df4['SMS_received'])
+plt.plot(df4.index, df4['Show_up'])
+plt.legend(['Patient with SMS_received', 'Patient Show_up'], loc='upper left')
+plt.xlabel('PatientId(index is used)')
+plt.ylabel('Frequency')
+plt.title('The number of SMS_received and show up in patients')
+plt.show()
+#scatter chart
+df4.plot(kind='scatter',x='SMS_received',y='Show_up',color='blue')
+plt.title('Patients show up with SMS received')
+plt.show()
+#maximal show up 
+df4['Show_up'].max()
+#maximal SMS received
+df4['SMS_received'].max()
